@@ -1,0 +1,52 @@
+version: '2'
+services:
+  master-node1:
+    image: antocas1990/opendistro-master
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      bootstrap.memory_lock: 'true'
+      cluster.name: odfe-cluster
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+    volumes:
+    - /nfs/Demo_opendistro/nodo-maestro:/usr/share/elasticsearch/data
+    expose:
+    - '9200'
+
+  data-node2:
+    image: antocas1990/opendistro-data
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      bootstrap.memory_lock: 'true'
+      cluster.name: odfe-cluster
+      discovery.zen.ping.unicast.hosts: master-node1
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+    volumes:
+    - /nfs/Demo_opendistro/nodo-datos2:/usr/share/elasticsearch/data
+  data-node1:
+    image: antocas1990/opendistro-data
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      bootstrap.memory_lock: 'true'
+      cluster.name: odfe-cluster
+      discovery.zen.ping.unicast.hosts: master-node1
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+    volumes:
+    - /nfs/Demo_opendistro/nodo-datos:/usr/share/elasticsearch/data
+  kibana:
+    image: amazon/opendistro-for-elasticsearch-kibana:0.8.0
+    environment:
+      ELASTICSEARCH_URL: https://master-node1:9200
+    ports:
+    - 5601:5601/tcp
+    expose:
+    - '5601'
+
